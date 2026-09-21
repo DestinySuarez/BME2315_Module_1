@@ -3,10 +3,10 @@ from Patient_Destiny import Patient
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy import stats
 
 # Create Patient objects from every row in the patient CSV dataset.
-Patient.instantiate_from_csv("/Users/destinysuarez/Desktop/Computational BME/Module 1/Patient_Info_Module_1/Metadata and Protein Data for Module 1_Patient.csv")
-
+Patient.instantiate_from_csv("Patient_Info_Module_1/Metadata and Protein Data for Module 1_Patient.csv")
 # Print the first five Patient objects to verify that the CSV was loaded correctly.
 print(Patient.all_patients[:5])
 
@@ -34,24 +34,72 @@ dementia = [patient.years_education for patient in Patient.all_patients
 means = [np.mean(no_dementia), np.mean(dementia)]
 standard_deviations = [np.std(no_dementia), np.std(dementia)]
 
-# Create a bar graph comparing mean years of education between the two groups.
-# Error bars represent one standard deviation.
+t_stat, p_val = stats.ttest_ind(no_dementia, dementia)
+
+print(f't_stat = {t_stat}, p_val = {p_val}')
+
+# Create a bar graph comparing mean years of education
 groups = ["No dementia", "Dementia"]
 
-plt.bar(groups, means, yerr=standard_deviations, capsize=5)
+fig, ax = plt.subplots()
 
-plt.xlabel("Cognitive Status")
-plt.ylabel("Mean Years of Education")
-plt.title("Mean Years of Education by Cognitive Status")
+ax.bar(groups, means, yerr=standard_deviations, capsize=5)
+
+ax.set_xlabel("Cognitive Status")
+ax.set_ylabel("Mean Years of Education")
+ax.set_title("Mean Years of Education by Cognitive Status")
+
+# Add T-test results to the graph
+ax.text(
+    0.5, 19.5,
+    f"T-test: t = {t_stat:.2f}, p = {p_val:.3f}",
+    ha="center",
+    fontsize=12
+)
+
 plt.show()
+
+plt.text(
+    0.5, 19,
+    f"t = {t_stat:.2f}, p = {p_val:.3f}",
+    ha="center",
+    fontsize=12
+)
+
+
+# T-test comparing years of education between cognitive status groups
+education_no_dementia = [
+    patient.years_education
+    for patient in Patient.all_patients
+    if patient.cognitive_status == "No dementia"
+]
+
+education_dementia = [
+    patient.years_education
+    for patient in Patient.all_patients
+    if patient.cognitive_status == "Dementia"
+]
+
+# Run the independent samples T-test
+t_stat, p_val = stats.ttest_ind(
+    education_no_dementia,
+    education_dementia
+)
+
+print("\nT-test results:")
+print("T-statistic:", t_stat)
+print("P-value:", p_val)
 
 # Create a scatter plot of years of education and age at death
 education = [patient.years_education for patient in Patient.all_patients]
 age_at_death = [patient.age_death for patient in Patient.all_patients]
+
+plt.figure()
 
 plt.scatter(education, age_at_death)
 
 plt.xlabel("Years of Education")
 plt.ylabel("Age at Death")
 plt.title("Years of Education vs. Age at Death")
+
 plt.show()
