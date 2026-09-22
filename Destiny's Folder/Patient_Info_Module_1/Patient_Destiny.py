@@ -3,6 +3,7 @@ import csv
 
 
 # Define the Patient class to create patient objects from the dataset.
+# Define the Patient class to create patient objects from the dataset.
 class Patient:
 
     all_patients = []
@@ -31,10 +32,15 @@ class Patient:
 
     # Return a readable description of a Patient object when it is printed.
     def __repr__(self):
-            return f"Patient {self.donor_id}: {self.age_death} years old, {self.sex}, {self.cognitive_status}, {self.years_education} years of education"
+        return (
+            f"Patient {self.donor_id}: "
+            f"{self.age_death} years old, "
+            f"{self.sex}, "
+            f"{self.cognitive_status}, "
+            f"{self.years_education} years of education"
+        )
 
     # Read the patient CSV file and create a Patient object for each row.
-    # Numeric measurements are converted to floats for calculations and graphs.
     @classmethod
     def instantiate_from_csv(cls, filename):
         with open(filename, newline="") as f:
@@ -49,22 +55,24 @@ class Patient:
                     float(row["Years of education"]),
                     row["APOE Genotype"],
                     row["Cognitive Status"],
-                    row["Age of Dementia diagnosis"],
+                    float(row["Age of Dementia diagnosis"]) if row["Age of Dementia diagnosis"] else None,
                     row["Thal"],
                     float(row["ABeta40 pg/ug"]),
                     float(row["ABeta42 pg/ug"]),
                     float(row["tTAU pg/ug"]),
                     float(row["pTAU pg/ug"])
-                    )
+                )
 
-    # Filter patients using two attributes: years of education and cognitive status.
-    # Return the patients who meet both conditions.
+    # Filter patients based on years of education and cognitive status.
     @classmethod
     def filter_patients(cls, min_education, cognitive_status):
         filtered_patients = []
 
         for patient in cls.all_patients:
-            if patient.years_education >= min_education and patient.cognitive_status == cognitive_status:
+            if (
+                patient.years_education >= min_education
+                and patient.cognitive_status == cognitive_status
+            ):
                 filtered_patients.append(patient)
 
         return filtered_patients

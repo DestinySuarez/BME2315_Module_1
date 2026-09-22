@@ -1,6 +1,9 @@
 # Import the Patient class and modules needed to read and analyze the dataset.
+from sklearn.linear_model import LinearRegression
+import pandas as pd
 from Patient_Destiny import Patient
 import csv
+import statistics
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
@@ -90,16 +93,51 @@ print("\nT-test results:")
 print("T-statistic:", t_stat)
 print("P-value:", p_val)
 
-# Create a scatter plot of years of education and age at death
-education = [patient.years_education for patient in Patient.all_patients]
-age_at_death = [patient.age_death for patient in Patient.all_patients]
+# Create a scatter plot of years of education and age of dementia diagnosis
+
+# Create a scatter plot of years of education and age of dementia diagnosis
+
+dementia_patients = [
+    patient
+    for patient in Patient.all_patients
+    if patient.cognitive_status == "Dementia"
+    and patient.age_dementia is not None
+]
+
+education = [
+    patient.years_education
+    for patient in dementia_patients
+]
+
+age_diagnosis = [
+    patient.age_dementia
+    for patient in dementia_patients
+]
+
+X = np.array(education).reshape(-1, 1)
+y = np.array(age_diagnosis)
+
+model = LinearRegression()
+model.fit(X, y)
 
 plt.figure()
 
-plt.scatter(education, age_at_death)
+plt.scatter(
+    education,
+    age_diagnosis
+)
+
+# Sort education values so the regression line draws correctly
+sort_indices = np.argsort(education)
+X_sorted = X[sort_indices]
+
+plt.plot(
+    X_sorted,
+    model.predict(X_sorted)
+)
 
 plt.xlabel("Years of Education")
-plt.ylabel("Age at Death")
-plt.title("Years of Education vs. Age at Death")
+plt.ylabel("Age at Dementia Diagnosis")
+plt.title("Age at Dementia Diagnosis vs. Years of Education")
 
 plt.show()
