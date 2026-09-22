@@ -6,7 +6,7 @@ import numpy as np
 from scipy import stats
 
 # Create Patient objects from every row in the patient CSV dataset.
-Patient.instantiate_from_csv("Patient_Info_Module_1/Metadata and Protein Data for Module 1_Patient.csv")
+Patient.instantiate_from_csv("/Users/destinysuarez/Desktop/Computational BME/Module 1/BME2315_Module_1/Destiny's Folder/Patient_Info_Module_1/Metadata and Protein Data for Module 1_Patient.csv")
 # Print the first five Patient objects to verify that the CSV was loaded correctly.
 print(Patient.all_patients[:5])
 
