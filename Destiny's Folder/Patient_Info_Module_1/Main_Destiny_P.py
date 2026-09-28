@@ -37,8 +37,10 @@ dementia = [patient.years_education for patient in Patient.all_patients
 means = [np.mean(no_dementia), np.mean(dementia)]
 standard_deviations = [np.std(no_dementia), np.std(dementia)]
 
+# Perform an independent samples t-test
 t_stat, p_val = stats.ttest_ind(no_dementia, dementia)
 
+# Print the t-test results
 print(f't_stat = {t_stat}, p_val = {p_val}')
 
 # Create a bar graph comparing mean years of education
@@ -86,7 +88,8 @@ education_dementia = [
 # Run the independent samples T-test
 t_stat, p_val = stats.ttest_ind(
     education_no_dementia,
-    education_dementia
+    education_dementia,
+    equal_var=False
 )
 
 print("\nT-test results:")
@@ -119,6 +122,14 @@ y = np.array(age_diagnosis)
 
 model = LinearRegression()
 model.fit(X, y)
+
+r_value, correlation_p = stats.pearsonr(education, age_diagnosis)
+
+print("Regression slope:", model.coef_[0])
+print("Regression intercept:", model.intercept_)
+print("R-squared:", model.score(X, y))
+print("Pearson correlation:", r_value)
+print("Correlation p-value:", correlation_p)
 
 plt.figure()
 
