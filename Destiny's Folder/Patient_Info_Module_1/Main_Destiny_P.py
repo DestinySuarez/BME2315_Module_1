@@ -12,8 +12,8 @@ from scipy import stats
 from pathlib import Path
 
 csv_file = Path(__file__).parent / "Metadata and Protein Data for Module 1_Patient.csv"
-Patient.instantiate_from_csv(csv_file)
-# Print the first five Patient objects to verify that the CSV was loaded correctly.
+Patient.all_patients.clear()  # empty the list first so re-running doesn't add duplicates
+Patient.instantiate_from_csv(csv_file) # Print the first five Patient objects to verify that the CSV was loaded correctly.
 print(Patient.all_patients[:5])
 
 # Sort patients based on years of education
@@ -67,12 +67,6 @@ ax.text(
 
 plt.show()
 
-plt.text(
-    0.5, 19,
-    f"t = {t_stat:.2f}, p = {p_val:.3f}",
-    ha="center",
-    fontsize=12
-)
 
 
 # T-test comparing years of education between cognitive status groups
@@ -150,8 +144,51 @@ plt.plot(
     model.predict(X_sorted)
 )
 
+# Add regression results to the graph
+plt.text(
+    0.05, 0.95,
+    f"r = {r_value:.2f}, p = {correlation_p:.3f}, R² = {model.score(X, y):.3f}",
+    transform=plt.gca().transAxes,
+    va="top"
+)
+
 plt.xlabel("Years of Education")
 plt.ylabel("Age at Dementia Diagnosis")
 plt.title("Age at Dementia Diagnosis vs. Years of Education")
 
+plt.show()
+
+# create a bar graph of years of education by sex and cognitive status, with a one-way ANOVA
+healthy_female = [patient.years_education for patient in Patient.all_patients
+                  if patient.sex == "Female" and patient.cognitive_status == "No dementia"]
+
+healthy_male = [patient.years_education for patient in Patient.all_patients
+                if patient.sex == "Male" and patient.cognitive_status == "No dementia"]
+
+diseased_female = [patient.years_education for patient in Patient.all_patients
+                   if patient.sex == "Female" and patient.cognitive_status == "Dementia"]
+
+diseased_male = [patient.years_education for patient in Patient.all_patients
+                 if patient.sex == "Male" and patient.cognitive_status == "Dementia"]
+
+# Mean and standard deviation for each group
+group_names = ["Healthy Female", "Healthy Male", "Diseased Female", "Diseased Male"]
+group_means = [np.mean(healthy_female), np.mean(healthy_male),
+               np.mean(diseased_female), np.mean(diseased_male)]
+group_stds = [np.std(healthy_female), np.std(healthy_male),
+              np.std(diseased_female), np.std(diseased_male)]
+
+# One-way ANOVA
+f_stat, anova_p = stats.f_oneway(healthy_female, healthy_male, diseased_female, diseased_male)
+print("\nANOVA results:")
+print("F-statistic:", f_stat)
+print("p-value:", anova_p)
+
+plt.figure()
+plt.bar(group_names, group_means, yerr=group_stds, capsize=5)
+plt.xlabel("Sex and Health Status")
+plt.ylabel("Mean Years of Education")
+plt.title("Years of Education by Sex and Cognitive Status")
+plt.text(0.5, 0.95, f"One-way ANOVA: p = {anova_p:.3f}",
+         transform=plt.gca().transAxes, ha="center", va="top")
 plt.show()
